@@ -64,7 +64,7 @@ jobs:
 
             # Configure environment variables
             echo "Creating .env file..."
-            echo "PORT=3080" > .env
+            echo "PORT=80" > .env
             echo "HOST=0.0.0.0" >> .env
             echo "MONGO_URI=mongodb://mongodb:27017/LibreChat" >> .env
             echo "DOMAIN=libre.vbrl.ai" >> .env
