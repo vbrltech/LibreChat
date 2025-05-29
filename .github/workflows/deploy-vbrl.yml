@@ -64,7 +64,7 @@ jobs:
 
             # Configure environment variables
             echo "Creating .env file..."
-            echo "PORT=443" > .env
+            echo "PORT=80" > .env
             echo "HOST=0.0.0.0" >> .env
             echo "MONGO_URI=mongodb://mongodb:27017/LibreChat" >> .env
             echo "DOMAIN=libre.vbrl.ai" >> .env
@@ -90,31 +90,9 @@ jobs:
             echo "ALLOW_UNVERIFIED_EMAIL_LOGIN=true" >> .env
             echo "UID=0" >> .env
             echo "GID=0" >> .env
-            echo "HTTPS=true" >> .env
-            echo "HTTPS_CERT_PATH=/app/certs/cert.pem" >> .env
-            echo "HTTPS_KEY_PATH=/app/certs/key.pem" >> .env
             echo "Environment file created successfully."
 
-            # Create SSL certificates directory if it doesn't exist
-            mkdir -p ~/LibreChat/certs
-            
-            # Generate self-signed SSL certificate if it doesn't exist
-            if [ ! -f ~/LibreChat/certs/cert.pem ] || [ ! -f ~/LibreChat/certs/key.pem ]; then
-              echo "Generating self-signed SSL certificate..."
-              sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-                -keyout ~/LibreChat/certs/key.pem \
-                -out ~/LibreChat/certs/cert.pem \
-                -subj '/CN=libre.vbrl.ai'
-              sudo chown -R ubuntu:ubuntu ~/LibreChat/certs
-            fi
-
             # Cloudflare is already handling SSL and domain routing, no need for Nginx
-
-            # Update docker-compose.yml to mount certificates
-            echo "Updating docker-compose.yml to mount certificates..."
-            if ! grep -q "./certs:/app/certs" ~/LibreChat/docker-compose.yml; then
-              sed -i '/- .\/logs:\/app\/api\/logs/a\\      - .\/certs:\/app\/certs' ~/LibreChat/docker-compose.yml
-            fi
             
             # Deploy with Docker Compose
             echo "Deploying with Docker Compose..."
