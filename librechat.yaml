@@ -25,7 +25,7 @@ registration:
 endpoints:
   custom:
     - name: 'OpenRouter'
-      apiKey: '${OPENROUTER_KEY}'
+      apiKey: '${OPENROUTER_API_KEY}'
       baseURL: 'https://openrouter.ai/api/v1'
       models:
         default: ['meta-llama/llama-3-70b-instruct']
