@@ -91,6 +91,7 @@ jobs:
             echo "GOOGLE_CALLBACK_URL=https://libre.vbrl.ai/oauth/google/callback" >> .env
             echo "ALLOW_PASSWORD_RESET=false" >> .env
             echo "ALLOW_UNVERIFIED_EMAIL_LOGIN=true" >> .env
+            echo "EMAIL_DOMAIN_RESTRICTION=vbrl.ai" >> .env
             echo "UID=0" >> .env
             echo "GID=0" >> .env
             echo "Environment file created successfully."
