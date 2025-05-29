@@ -101,6 +101,12 @@ jobs:
             # The librechat.yaml file is already in the repository
             echo "Using librechat.yaml from the repository..."
             
+            # Update docker-compose.yml to mount librechat.yaml
+            echo "Updating docker-compose.yml to mount librechat.yaml..."
+            if ! grep -q "./librechat.yaml:/app/librechat.yaml" ~/LibreChat/docker-compose.yml; then
+              sed -i '/- .\/logs:\/app\/api\/logs/a\\      - .\/librechat.yaml:\/app\/librechat.yaml' ~/LibreChat/docker-compose.yml
+            fi
+            
             # Deploy with Docker Compose
             echo "Deploying with Docker Compose..."
             cd ~/LibreChat
