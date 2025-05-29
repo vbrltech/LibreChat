@@ -88,8 +88,8 @@ jobs:
             echo "ALLOW_SOCIAL_REGISTRATION=false" >> .env
             echo "ALLOW_PASSWORD_RESET=false" >> .env
             echo "ALLOW_UNVERIFIED_EMAIL_LOGIN=true" >> .env
-            echo "UID=1000" >> .env
-            echo "GID=1000" >> .env
+            echo "UID=0" >> .env
+            echo "GID=0" >> .env
             echo "Environment file created successfully."
 
             # Cloudflare is already handling SSL and domain routing, no need for Nginx
