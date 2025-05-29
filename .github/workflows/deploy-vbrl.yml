@@ -1,0 +1,112 @@
+name: Deploy to VBRL Server
+
+on:
+  push:
+    branches:
+      - vbrl_main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SECRET_KEY_SSH_PRIVATE }}
+          known_hosts: 'unnecessary'
+          if_key_exists: replace
+
+      - name: Add host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 13.61.144.55 >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        env:
+          OPENROUTER_KEY: ${{ secrets.OPENROUTER_EGOR_KEY }}
+          SERVER_HOST: "13.61.144.55"
+          SERVER_USER: "ubuntu"
+        run: |
+          ssh -o StrictHostKeyChecking=accept-new ${SERVER_USER}@${SERVER_HOST} << 'EOF'
+            # Create backup of current deployment if it exists
+            if [ -d "~/LibreChat" ]; then
+              echo "Creating backup of current deployment..."
+              timestamp=$(date +%Y%m%d_%H%M%S)
+              sudo cp -r ~/LibreChat ~/LibreChat_backup_$timestamp
+            fi
+
+            # Clone or update repository
+            if [ -d "~/LibreChat" ]; then
+              echo "Updating existing repository..."
+              cd ~/LibreChat
+              git fetch origin
+              git reset --hard origin/vbrl_main
+            else
+              echo "Cloning repository..."
+              git clone https://github.com/${{ github.repository }}.git ~/LibreChat
+              cd ~/LibreChat
+              git checkout vbrl_main
+            fi
+
+            # Docker and Docker Compose are already installed on the server
+            echo "Using existing Docker and Docker Compose installation..."
+
+            # Create or update .env file
+            echo "Configuring environment variables..."
+            cd ~/LibreChat
+            if [ ! -f ".env" ]; then
+              cp .env.example .env
+            fi
+
+            # Configure environment variables
+            echo "Creating .env file..."
+            echo "PORT=3080" > .env
+            echo "HOST=0.0.0.0" >> .env
+            echo "MONGO_URI=mongodb://mongodb:27017/LibreChat" >> .env
+            echo "DOMAIN=libre.vbrl.ai" >> .env
+            echo "DOMAIN_CLIENT=https://libre.vbrl.ai" >> .env
+            echo "DOMAIN_SERVER=https://libre.vbrl.ai" >> .env
+            echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_EGOR_KEY }}" >> .env
+            echo "OPENROUTER_ENABLED=true" >> .env
+            echo "OPENROUTER_KEY=${{ secrets.OPENROUTER_EGOR_KEY }}" >> .env
+            echo "ENDPOINTS=openAI,assistants,azureOpenAI,google,gptPlugins,anthropic" >> .env
+            echo "SEARCH=true" >> .env
+            echo "MEILI_NO_ANALYTICS=true" >> .env
+            echo "MEILI_HOST=http://meilisearch:7700" >> .env
+            echo "MEILI_MASTER_KEY=DrhYf7zENyR6AlUCKmnz0eYASOQdl6zxH7s7MKFSfFCt" >> .env
+            echo "JWT_SECRET=$(openssl rand -hex 32)" >> .env
+            echo "JWT_REFRESH_SECRET=$(openssl rand -hex 32)" >> .env
+            echo "CREDS_KEY=$(openssl rand -hex 32)" >> .env
+            echo "CREDS_IV=$(openssl rand -hex 16)" >> .env
+            echo "ALLOW_EMAIL_LOGIN=true" >> .env
+            echo "ALLOW_REGISTRATION=true" >> .env
+            echo "ALLOW_SOCIAL_LOGIN=false" >> .env
+            echo "ALLOW_SOCIAL_REGISTRATION=false" >> .env
+            echo "ALLOW_PASSWORD_RESET=false" >> .env
+            echo "ALLOW_UNVERIFIED_EMAIL_LOGIN=true" >> .env
+            echo "UID=1000" >> .env
+            echo "GID=1000" >> .env
+            echo "Environment file created successfully."
+
+            # Cloudflare is already handling SSL and domain routing, no need for Nginx
+
+            # Deploy with Docker Compose
+            echo "Deploying with Docker Compose..."
+            cd ~/LibreChat
+            
+            # Stop any running containers
+            sudo docker compose down
+
+            # Build the images locally (instead of just pulling)
+            echo "Building Docker images..."
+            sudo docker compose build
+
+            # Start the application
+            sudo docker compose up -d
+
+            echo "Deployment completed successfully!"
+          EOF
