@@ -84,8 +84,11 @@ jobs:
             echo "CREDS_IV=$(openssl rand -hex 16)" >> .env
             echo "ALLOW_EMAIL_LOGIN=true" >> .env
             echo "ALLOW_REGISTRATION=true" >> .env
-            echo "ALLOW_SOCIAL_LOGIN=false" >> .env
-            echo "ALLOW_SOCIAL_REGISTRATION=false" >> .env
+            echo "ALLOW_SOCIAL_LOGIN=true" >> .env
+            echo "ALLOW_SOCIAL_REGISTRATION=true" >> .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "GOOGLE_CALLBACK_URL=https://libre.vbrl.ai/oauth/google/callback" >> .env
             echo "ALLOW_PASSWORD_RESET=false" >> .env
             echo "ALLOW_UNVERIFIED_EMAIL_LOGIN=true" >> .env
             echo "UID=0" >> .env
