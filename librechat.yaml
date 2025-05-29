@@ -1,0 +1,36 @@
+# Configuration version (required)
+version: 1.2.1
+
+# Cache settings
+cache: true
+
+# Interface configuration
+interface:
+  customWelcome: "Welcome to VBRL LibreChat! Please sign in with your @vbrl.ai email."
+  endpointsMenu: true
+  modelSelect: true
+  parameters: true
+  sidePanel: true
+  presets: true
+  prompts: true
+  bookmarks: true
+  multiConvo: true
+  agents: true
+
+# Registration settings
+registration:
+  socialLogins: ['google']
+
+# OpenRouter configuration
+endpoints:
+  custom:
+    - name: 'OpenRouter'
+      apiKey: '${OPENROUTER_KEY}'
+      baseURL: 'https://openrouter.ai/api/v1'
+      models:
+        default: ['meta-llama/llama-3-70b-instruct']
+        fetch: true
+      titleConvo: true
+      titleModel: 'meta-llama/llama-3-70b-instruct'
+      dropParams: ['stop']
+      modelDisplayLabel: 'OpenRouter'
